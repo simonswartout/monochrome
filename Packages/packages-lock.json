@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.nexus.asset-library": {
+      "version": "https://github.com/thecrimsondeveloper/Nexus-Assets-Package.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9859bb1cc6462c77058abe494f8e769d6c37372c"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
