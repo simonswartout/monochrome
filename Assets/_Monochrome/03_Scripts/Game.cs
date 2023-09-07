@@ -6,7 +6,7 @@ public class Game : MonoBehaviour
 {
     public static Game Instance { get; private set; }
 
-    [SerializeField] private PlayerMovementController playerMovementController;
+    [SerializeField] private PlayerMovementControllerV2 playerMovementController;
     
     private void Awake()
     {
