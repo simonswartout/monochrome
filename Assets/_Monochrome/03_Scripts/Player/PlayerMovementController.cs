@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class PlayerMovementController : MonoBehaviour
 {
+    public enum PlayerState
+    {
+        Idle,
+        Walking,
+        Running,
+        Jumping,
+        Falling
+    }
+
+    [SerializeField] private PlayerState currentState;
+    [SerializeField] private PlayerState previousState;
+    public bool isGrounded = false;
+
+
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float runSpeed = 10f;
@@ -12,7 +26,7 @@ public class PlayerMovementController : MonoBehaviour
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private bool isGrounded = false;
+    [SerializeField] private float downForce = 500f;
 
     private float horizontalInput = 0f;
     private bool isJumping = false;
@@ -24,12 +38,16 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Update()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
+        // Get user input
+        horizontalInput = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetKeyDown(KeyCode.W))
         {
             isJumping = true;
         }
+
+        //update the player state
+        UpdatePlayerState();
     }
 
     private void FixedUpdate()
@@ -37,58 +55,141 @@ public class PlayerMovementController : MonoBehaviour
         // Check if the player is grounded in FixedUpdate
         isGrounded = IsGrounded();
 
-        // Apply movement based on user input
-        Move(horizontalInput, isJumping);
-        isJumping = false; // Reset jump flag after jumping
+        // Apply behavior based on the current state
+        switch (currentState)
+        {
+            case PlayerState.Idle:
+                // Handle idle state
+                break;
+
+            case PlayerState.Walking:
+                // Handle walking state
+                Move(horizontalInput, isJumping);
+                break;
+
+            case PlayerState.Running:
+                // Handle running state
+                Move(horizontalInput, isJumping);
+                break;
+
+            case PlayerState.Jumping:
+                // Handle jumping state
+                Jump();
+                break;
+
+            case PlayerState.Falling:
+                // Handle falling state
+                Falling();
+                break;
+        }
+    }
+
+    private void UpdatePlayerState()
+    {
+        previousState = currentState;
+
+        if (isJumping)
+        {
+            ChangeState(PlayerState.Jumping);
+        }
+        else if (Mathf.Abs(horizontalInput) > 0 && isGrounded)
+        {
+            ChangeState(Input.GetKey(KeyCode.LeftShift) ? PlayerState.Running : PlayerState.Walking);
+        }
+        else if (Mathf.Abs(horizontalInput) == 0 && currentState != PlayerState.Falling)
+        {
+            ChangeState(PlayerState.Idle);
+        }
+    }
+
+    private void ChangeState(PlayerState newState)
+    {
+        if (currentState != newState)
+        {
+            currentState = newState;
+            Debug.Log("Player state changed to: " + currentState);
+        }
+    }
+
+    public PlayerState GetPlayerState()
+    {
+        return currentState;
     }
 
     private void Move(float horizontalInput, bool jump)
     {
         Vector2 moveDirection = new Vector2(horizontalInput, 0);
 
-        // Apply movement force
-        if (!isGrounded)
-        {
-            AirMove(moveDirection);
-        }
-        else
-        {
-            // Use rb.velocity for more precise control
-            rb.velocity = new Vector2(moveDirection.x * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed), rb.velocity.y);
-        }
-
-        // Handle jumping
-        if (jump)
-        {
-            Jump();
-        }
+        rb.velocity = new Vector2(moveDirection.x * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed), rb.velocity.y);
     }
 
     private void AirMove(Vector2 direction)
     {
-        rb.AddForce(direction * walkSpeed * 0.3f, ForceMode2D.Force);
+        rb.AddForce(direction * 5f, ForceMode2D.Force);
     }
 
     private bool IsGrounded()
     {
-        // Do a raycast to check if the player is grounded
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 1f, groundLayer);
-        return hit.collider != null;
+        // Cast a ray slightly below the character's feet to check for ground
+        Vector2 rayStart = transform.position + Vector3.down * 1.1f; // Adjust the value to match your character's size
+        RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 1.1f, groundLayer);
+
+        // Ignore permeable platforms
+        // if (hit.collider != null && hit.collider.CompareTag("Permeable_Platform"))
+        // {
+        //     hit = Physics2D.Raycast(rayStart, Vector2.down, 0.1f, groundLayer);
+        // }
+
+        if(hit.collider != null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
+
 
     private void Jump()
     {
-        // Check if the player is grounded
-        if (isGrounded)
-        {
-            jumpCount = 0;
-        }
-
-        // Jump
+        // Check if the player can jump (based on maxJumps)
         if (jumpCount < maxJumps)
         {
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            // Check if the player is grounded to reset jump count
+            if (isGrounded)
+            {
+                jumpCount = 0;
+            }
+
+            // Apply the jump force
+            rb.AddForce(Vector2.up * jumpForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
             jumpCount++;
+            isJumping = false;
+            ChangeState(PlayerState.Falling);
         }
+    }
+
+    private void Falling()
+    {
+        // Check if the player is no longer jumping (has reached the peak of the jump)
+        if (rb.velocity.y < 0)
+        {
+            // Apply gravity
+            rb.AddForce(Vector2.down * downForce * Time.fixedDeltaTime, ForceMode2D.Force);
+        }
+
+        // Apply horizontal air movement
+        AirMove(new Vector2(horizontalInput, 0));
+    }
+
+    public float GetVelocityX()
+    {
+        return rb.velocity.x;
+    }
+
+    public float GetVelocityY()
+    {
+        return rb.velocity.y;
     }
 }

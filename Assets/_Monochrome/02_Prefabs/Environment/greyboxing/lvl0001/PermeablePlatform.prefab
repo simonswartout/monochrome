@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3472032023349924949}
   - component: {fileID: 1824651309570960291}
   - component: {fileID: 4394893058455745204}
+  - component: {fileID: 339036053728349059}
   m_Layer: 3
   m_Name: PermeablePlatform
   m_TagString: Untagged
@@ -157,3 +158,16 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
+--- !u!114 &339036053728349059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356369512102386362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 899d5f6e8c8f7fe49a4e3238b16c710f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  platformCollider: {fileID: 1824651309570960291}

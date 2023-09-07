@@ -5,12 +5,33 @@ using UnityEngine;
 public class PermeablePlatform : MonoBehaviour
 {
     [SerializeField] private Collider2D platformCollider;
-    
-    private void OnTriggerExit2D(Collider2D other)
+    [SerializeField] private Vector2 playerPosition;
+    [SerializeField] private float footOffset = 1f;
+
+    private void Awake()
     {
-        if (other.TryGetComponent(out PlayerMovementController player))
+        platformCollider = GetComponent<Collider2D>();
+    }
+    
+    private void FixedUpdate()
+    {
+        playerPosition = Game.Instance.GetPlayerPosition();
+        
+        
+        if (playerPosition.y > transform.position.y + footOffset)
         {
-            platformCollider.isTrigger = false;
+            platformCollider.enabled = true;
         }
-    } 
+        else
+        {
+            platformCollider.enabled = false;
+        }
+    }
+
+    private void Update()
+    {
+
+    }
+    
+
 }
