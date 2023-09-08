@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    [SerializeField] private PlayerMovementControllerV2 playerMovementController;
+    [SerializeField] private PlayerMoveStateMachine playerMoveStateMachine;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     // Update is called once per frame
     void Update()
     {
-        if(playerMovementController != null)
+        if(playerMoveStateMachine != null)
         {
             SetWalkRunAnimation();
         }
@@ -21,12 +21,16 @@ public class PlayerAnimation : MonoBehaviour
     {
         FlipSpriteRenderer();
 
-        if(playerMovementController.GetPlayerState() == PlayerMovementControllerV2.PlayerState.Walking && playerMovementController.isGrounded == true)
+        if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Idle)
+        {
+            SetIdleAnimation();
+        }
+        else if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Walking)
         {
             animator.SetBool("isWalking", true);
             animator.SetBool("isRunning", false);
         }
-        else if(playerMovementController.GetPlayerState() == PlayerMovementControllerV2.PlayerState.Running && playerMovementController.isGrounded == true)
+        else if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Running)
         {
             animator.SetBool("isRunning", true);
             animator.SetBool("isWalking", false);
@@ -35,24 +39,17 @@ public class PlayerAnimation : MonoBehaviour
         {
             SetIdleAnimation();
         }
-
     }
 
     private void FlipSpriteRenderer()
     {
-        float XVelocity = playerMovementController.GetVelocityX();
-
-        if(XVelocity > 0.5)
-        {
-            spriteRenderer.flipX = false;
-        }
-        else if(XVelocity < -0.5)
+        if(playerMoveStateMachine.playerDirectionState == PlayerMoveStateMachine.PlayerDirectionStates.Left)
         {
             spriteRenderer.flipX = true;
         }
-        else if(XVelocity == 0)
+        else if(playerMoveStateMachine.playerDirectionState == PlayerMoveStateMachine.PlayerDirectionStates.Right)
         {
-            SetIdleAnimation();
+            spriteRenderer.flipX = false;
         }
     }
 

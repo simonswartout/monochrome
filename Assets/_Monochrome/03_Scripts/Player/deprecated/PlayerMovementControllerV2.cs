@@ -15,8 +15,20 @@ public class PlayerMovementControllerV2 : MonoBehaviour
 
     public bool isGrounded = false;
 
-    [SerializeField] private PlayerState playerState;
-    [SerializeField] private PlayerState previousPlayerState;
+    private PlayerState _playerState;
+    public PlayerState playerState
+    { 
+        get { return _playerState; }
+        set 
+        { 
+            if(_playerState != value)
+            {
+                _playerState = value;
+                Debug.Log("Player state changed to: " + _playerState);
+            }
+        }
+    }
+
 
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float walkSpeed = 5f;
@@ -32,6 +44,7 @@ public class PlayerMovementControllerV2 : MonoBehaviour
     [SerializeField] private float downForce = 500f;
 
     private float horizontalInput = 0f;
+    private float verticalInput = 0f;
 
     private void Awake()
     {
@@ -51,27 +64,30 @@ public class PlayerMovementControllerV2 : MonoBehaviour
 
         if(Mathf.Abs(horizontalInput) > 0 && !Input.GetKey(KeyCode.LeftShift) && isGrounded)
         {
-            SetPlayerState(PlayerState.Walking);
+            playerState = PlayerState.Walking;
         }
         else if (Mathf.Abs(horizontalInput) > 0 && Input.GetKey(KeyCode.LeftShift) && isGrounded)
         {
-            SetPlayerState(PlayerState.Running);
+            playerState = PlayerState.Running;
+
         }
-        else if (!isGrounded)
+        else if (!isGrounded && rb.velocity.y < 0)
         {
-            SetPlayerState(PlayerState.Falling);
+            playerState = PlayerState.Falling;
             AirWalk();
         }
         else
         {
-            SetPlayerState(PlayerState.Idle);
+            playerState = PlayerState.Idle;
         }
 
 
-        if(Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) && jumpCount < maxJumps)
         {
-            SetPlayerState(PlayerState.Jumping);
-        } 
+            jumpCount++;
+            Jump();
+            playerState = PlayerState.Jumping;
+        }
         //else if (rb.velocity.y == 0 && !isGrounded)
         // {
         //     SetPlayerState(PlayerState.Falling);
@@ -90,7 +106,7 @@ public class PlayerMovementControllerV2 : MonoBehaviour
             jumpCount = 0;
         }
 
-        switch (playerState)
+        switch (_playerState)
         {
             case PlayerState.Idle:
                 // Handle idle state
@@ -130,25 +146,12 @@ public class PlayerMovementControllerV2 : MonoBehaviour
         rb.AddForce(new Vector2(horizontalInput * runSpeed, rb.velocity.y), ForceMode2D.Force);
     }
 
-    private bool isJumping = false;
     private void Jump()
     {
-        if(isJumping) return;
-
-        if(jumpCount < maxJumps)
-        {
-            StartCoroutine(StartJumpCoroutine());
-        }
-    }
-
-    IEnumerator StartJumpCoroutine()
-    {
-        isJumping = true;
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        yield return new WaitForSeconds(jumpTime);
-        jumpCount++;
-        isJumping = false;
+        playerState = PlayerState.Falling;    
     }
+    
 
     private void SetDrag(float drag)
     {
@@ -157,7 +160,7 @@ public class PlayerMovementControllerV2 : MonoBehaviour
 
     private void Fall()
     {
-        SetDrag(1f);
+        //SetDrag(1f);
         rb.AddForce(Vector2.down * downForce * Time.fixedDeltaTime, ForceMode2D.Force);
     }
 
@@ -165,24 +168,6 @@ public class PlayerMovementControllerV2 : MonoBehaviour
     {
         rb.AddForce(new Vector2(horizontalInput * airSpeed, 0f), ForceMode2D.Force);
     }
-
-
-
-    public PlayerState GetPlayerState()
-    {
-        return playerState;
-    }
-
-    public void SetPlayerState(PlayerState newState)
-    {
-        if(playerState != newState)
-        {
-            playerState = newState;
-            Debug.Log("Player state changed to: " + playerState);
-        }
-    }
-
-
     private bool IsGrounded()
     {
         RaycastHit2D raycastHit2D = Physics2D.BoxCast(GetComponent<Collider2D>().bounds.center, GetComponent<Collider2D>().bounds.size, 0f, Vector2.down, 0.1f, groundLayer);
