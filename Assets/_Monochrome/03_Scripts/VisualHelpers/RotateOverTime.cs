@@ -12,6 +12,7 @@ public class RotateOverTime : MonoBehaviour
     }
 
     [SerializeField] private RotateAxis rotateAxis;
+    [SerializeField] private BtnClickInteractable buttonClickInteractable;
     [SerializeField] private bool stopAtMaxSpeed;
     [SerializeField] private float rotateSpeed = 1f;
     [SerializeField] private float targetSpeed = 1f;
@@ -19,6 +20,10 @@ public class RotateOverTime : MonoBehaviour
 
     private void Update()
     {
+        if (buttonClickInteractable.IsActivated)
+        {
+            SlerpRotationSpeed();
+        }
         Rotate();
     }
 
@@ -28,7 +33,7 @@ public class RotateOverTime : MonoBehaviour
         {
             return;
         }
-        
+
         switch (rotateAxis)
         {
             case RotateAxis.X:
@@ -62,7 +67,6 @@ public class RotateOverTime : MonoBehaviour
             yield return null;
         }
         rotateSpeed = targetSpeed;
-        
     }
   
 }

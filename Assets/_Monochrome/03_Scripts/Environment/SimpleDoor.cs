@@ -7,10 +7,19 @@ public class SimpleDoor : MonoBehaviour
     [SerializeField] private float timeToOpen;
     [SerializeField] private Vector2 targetPosition;
     [SerializeField] private Vector2 startPosition;
+    [SerializeField] private BtnClickInteractable pairedMechanism;
 
     private void Start()
     {
         startPosition = transform.position;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if(other.CompareTag("Player") && pairedMechanism.IsActivated)
+        {
+            OpenDoor();
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other) 
@@ -29,7 +38,7 @@ public class SimpleDoor : MonoBehaviour
 
     public void CloseDoor()
     {
-        StartCoroutine(MoveDoorCoroutine(targetPosition, startPosition, timeToOpen));
+        StartCoroutine(MoveDoorCoroutine(transform.position, startPosition, timeToOpen));
     }
 
     private IEnumerator MoveDoorCoroutine(Vector2 StartPosition, Vector2 TargetPosition, float TimeToOpen)

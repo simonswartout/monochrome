@@ -6,9 +6,10 @@ using UnityEngine.Events;
 public class BaseInteractable : MonoBehaviour
 {
     [SerializeField] private Vector2 playerPosition;
-    [SerializeField] private bool canInteract;
+    [SerializeField] protected bool canInteract;
     [SerializeField] private float interactionThreshold = 1f;
-    public UnityEvent interactEvent;
+
+    public Sprite itemSprite;
 
     protected virtual void Start()
     {
@@ -26,10 +27,7 @@ public class BaseInteractable : MonoBehaviour
     }
     protected virtual void OnInteract()
     {
-        if(canInteract)
-        {
-            interactEvent.Invoke();
-        }
+
     }
 
 
