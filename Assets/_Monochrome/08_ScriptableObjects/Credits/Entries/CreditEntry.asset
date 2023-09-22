@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fdde4263d8e4ba74b8aab58929d7285e, type: 3}
-  m_Name: CreditData
+  m_Script: {fileID: 11500000, guid: 10a2a87dc13644441bd60cb878308fae, type: 3}
+  m_Name: CreditEntry
   m_EditorClassIdentifier: 
-  creditEntries:
-  - {fileID: 11400000, guid: 38390ba9c3ae32a40918f9889151befb, type: 2}
+  name: RottingPixels
+  attribution: SpriteSheet
+  url: https://opengameart.org/content/2d-sci-fi-platformer-tileset-16x16
