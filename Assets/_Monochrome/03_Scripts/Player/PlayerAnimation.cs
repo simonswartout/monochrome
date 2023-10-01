@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    [SerializeField] private PlayerMoveStateMachine playerMoveStateMachine;
+    [SerializeField] private PlayerMovementControllerV4 playerMoveStateMachine;
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
@@ -20,20 +20,9 @@ public class PlayerAnimation : MonoBehaviour
     private void SetWalkRunAnimation()
     {
         FlipSpriteRenderer();
-
-        if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Idle)
-        {
-            SetIdleAnimation();
-        }
-        else if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Walking)
+        if(playerMoveStateMachine.PlayerMovementState == PlayerMovementControllerV4.PlayerMovementStates.Walking)
         {
             animator.SetBool("isWalking", true);
-            animator.SetBool("isRunning", false);
-        }
-        else if(playerMoveStateMachine.playerMovementState == PlayerMoveStateMachine.PlayerMovementStates.Running)
-        {
-            animator.SetBool("isRunning", true);
-            animator.SetBool("isWalking", false);
         }
         else
         {
@@ -43,11 +32,11 @@ public class PlayerAnimation : MonoBehaviour
 
     private void FlipSpriteRenderer()
     {
-        if(playerMoveStateMachine.playerDirectionState == PlayerMoveStateMachine.PlayerDirectionStates.Left)
+        if(playerMoveStateMachine.PlayerDirectionState == PlayerMovementControllerV4.PlayerDirectionStates.Left)
         {
             spriteRenderer.flipX = true;
         }
-        else if(playerMoveStateMachine.playerDirectionState == PlayerMoveStateMachine.PlayerDirectionStates.Right)
+        else if(playerMoveStateMachine.PlayerDirectionState == PlayerMovementControllerV4.PlayerDirectionStates.Right)
         {
             spriteRenderer.flipX = false;
         }

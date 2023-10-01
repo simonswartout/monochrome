@@ -6,7 +6,7 @@ public class Game : MonoBehaviour
 {
     public static Game Instance { get; private set; }
 
-    [SerializeField] private PlayerMoveStateMachine playerMovement;
+    [SerializeField] private PlayerMovementControllerV4 playerMovement;
     
     private void Awake()
     {
@@ -18,8 +18,8 @@ public class Game : MonoBehaviour
         return playerMovement.transform.position;
     }
 
-    public PlayerMoveStateMachine.PlayerMovementStates GetPlayerMovementState()
+    public PlayerMovementControllerV4.PlayerMovementStates GetPlayerMovementState()
     {
-        return playerMovement.playerMovementState;
+        return playerMovement.PlayerMovementState;
     }
 }
