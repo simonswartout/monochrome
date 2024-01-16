@@ -28,10 +28,27 @@ namespace Monochrome.Movement
         [SerializeField] MovementState movementState;
         public MovementState Movement { get => movementState; set => movementState = value; }
 
+        float jumpChargeTimer = 0f;
         private void Update()
         {
 
             Vector2 input = GetInput();
+            
+            while(input.y > 0)
+            {
+                if(jumpChargeTimer > 5f)
+                {
+                    jumpChargeTimer = 5f;
+                }
+                
+                SetJumpDirection(input.x);
+                jumpChargeTimer += Time.deltaTime;
+                return;
+            }
+            
+            jumpChargeTimer = 0f;
+            ChargedJump(jumpChargeTimer, SetJumpDirection(input.x));
+
             SetMovementState(input);
 
             ApplyGravity();
@@ -73,6 +90,43 @@ namespace Monochrome.Movement
                 //continuously apply gravity to the player
                 transform.position = new Vector2(transform.position.x, transform.position.y - gravity * Time.deltaTime);
             }
+        } 
+
+        private void ChargedJump(float chargeTime, Vector3 jumpDirection)
+        {
+            if(!IsGrounded())
+            {
+                return;
+            }
+
+            switch (chargeTime)
+            {
+                case float _chargeTime when chargeTime > 0f && chargeTime < 1f:
+                    transform.DOJump(transform.position + jumpDirection, jumpPower * 3f, numberOfBounces, jumpCooldown);
+                    break;
+                case float _chargeTime when chargeTime > 1f && chargeTime < 2f:
+                    transform.DOJump(transform.position + jumpDirection, jumpPower * 4f, numberOfBounces, jumpCooldown);
+                    break;
+                case float _chargeTime when chargeTime > 2f && chargeTime < 3f:
+                    transform.DOJump(transform.position + jumpDirection, jumpPower * 5f, numberOfBounces, jumpCooldown);
+                    break; 
+                case float _chargeTime when chargeTime > 3f && chargeTime < 4f:
+                    transform.DOJump(transform.position + jumpDirection, jumpPower * 6f, numberOfBounces, jumpCooldown);
+                    break;
+                case float _chargeTime when chargeTime > 4f && chargeTime < 5f:
+                    transform.DOJump(transform.position + jumpDirection, jumpPower * 7f, numberOfBounces, jumpCooldown);
+                    break;
+            }
+        }
+
+        private Vector3 SetJumpDirection(float horizontalInput)
+        {
+            //use a quaternion slerp to rotate the player on the z axis to aim the jump
+            //the player can use the left and right buttons to aim the jump
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, 0f, horizontalInput * 45f), 0.1f);
+            //set the jump direction to the players rotation
+            Vector3 jumpDirection = transform.rotation * Vector3.up;
+            return jumpDirection;
         }
 
         private void Move(MovementState movementState)
